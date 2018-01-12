@@ -4,8 +4,6 @@ class Book < ApplicationRecord
 
   has_many :book_formats
   has_many :book_reviews
-  
-  has_many :book_format_types, :through => :book_formats
 
   validates_presence_of :title
   validates_presence_of :author_id
@@ -16,15 +14,15 @@ class Book < ApplicationRecord
 
 
   #elastic search settings:
-  # searchkick 
+  searchkick 
 
-  # def search_data
-  #   attributes.merge(
-  #     title: title,
-  #     last_name: author(&:last_name),
-  #     publisher_name: publisher(&:name),
-  #   )
-  # end
+  def search_data
+    attributes.merge(
+      title: title,
+      last_name: author(&:last_name),
+      publisher_name: publisher(&:name),
+    )
+  end
  
 
 #-------------------------
@@ -67,15 +65,15 @@ class Book < ApplicationRecord
 
 
 
-#ELASTIC SEARCH
+# ELASTIC SEARCH
   
-  #If data size is huge or sql text searching is slow, use this search accelarated by elastic search.
-  # def self.search_instead_with_elastic_search(query, args = {})
+#   If data size is huge or sql text searching is slow, use this search accelarated by elastic search.
+  def self.search_instead_with_elastic_search(query, args = {})
     
-  #   title_only, book_format_type_id, book_format_physical  = (args[:title_only] || false), args[:book_format_type_id], args[:book_format_physical]
-  #   books = title_only == true ? self.search_match_title_true_elastic_search(query) : self.search_match_title_false_elastic_search(query)
-  #   return self.execute_filters_according_to_arguments(books, book_format_type_id, book_format_physical)
-  # end
+    title_only, book_format_type_id, book_format_physical  = (args[:title_only] || false), args[:book_format_type_id], args[:book_format_physical]
+    books = title_only == true ? self.search_match_title_true_elastic_search(query) : self.search_match_title_false_elastic_search(query)
+    return self.execute_filters_according_to_arguments(books, book_format_type_id, book_format_physical)
+  end
 
 
   #helper class methods for sql searching
@@ -118,14 +116,6 @@ class Book < ApplicationRecord
     
     # Search all the specified fields 
     self.search(query).records
-
-    # I tried to work with exact matching and tried these options as suggested by searchkick documentation but exact matching wasn't working. 
-    # I have raised the issue and asked for help on their github. If given more time, I will be able to find it. 
-    #I know in pure elasticsearch using term is the way.
-
-    # self.search(query, fields: [{title: :word_middle}, {publisher_name: :word}, {last_name: :word}]).records    
-    # self.search(query, fields: [:title, {publisher_name: :exact}, {last_name: :exact}]).records  
-    # self.search(query, where: [{last_name: /\b"#{query}"\b/},{publisher_name: /\b"#{query}"\b/},{title: /\b"#{query}"\b/}]).records
   end
 
   #minimizing class dependecies by providing private methods as external interfaces
