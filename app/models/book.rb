@@ -47,12 +47,6 @@ class Book < ApplicationRecord
 
 
   
-  #Although it was asked to create a search method but for differentiation and handling problems with elastic search search, 
-  #I felt the need for renaming this method to sql_search instead. 
-
-  # After benchmarking on the production server, we can choose to use the most suited (memory and performance) searches below and 
-  #name it as search.
-
 
   #If data size is small, use this simple sql based searching which is default here. 
   def self.sql_search(query, args = {})
